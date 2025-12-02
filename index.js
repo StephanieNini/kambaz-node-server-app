@@ -29,7 +29,7 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: true,
+    origin: process.env.CLIENT_URL,
   })
 );
 
@@ -45,8 +45,10 @@ if (process.env.SERVER_ENV !== "development") {
   sessionOptions.cookie = {
     sameSite: "none",
     secure: true,
+    domain: process.env.COOKIE_DOMAIN,
   };
 }
+
 
 app.use(session(sessionOptions));
 
