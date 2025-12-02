@@ -1,30 +1,45 @@
 import { v4 as uuidv4 } from "uuid";
+import model from "./model.js";
 
 export default function AssignmentsDao(db) {
-  function findAssignmentsForCourse(courseId) {
-    return db.assignments.filter((a) => a.course === courseId);
+  // 某个课程的所有作业
+  async function findAssignmentsForCourse(courseId) {
+    return model.find({ course: courseId });
   }
 
-  function createAssignment(assignment) {
-    const newAssignment = { ...assignment, _id: uuidv4() };
-    db.assignments = [...db.assignments, newAssignment];
-    return newAssignment;
+  // 根据作业 ID 查一个
+  async function findAssignmentById(assignmentId) {
+    return model.findById(assignmentId);
   }
 
-  function deleteAssignment(assignmentId) {
-    db.assignments = db.assignments.filter((a) => a._id !== assignmentId);
+  // 为某个课程创建新作业
+  async function createAssignment(courseId, assignment) {
+    const newAssignment = {
+      ...assignment,
+      _id: uuidv4(),
+      course: courseId,
+    };
+    return model.create(newAssignment);
   }
 
-  function updateAssignment(assignmentId, updates) {
-    const assignment = db.assignments.find((a) => a._id === assignmentId);
-    Object.assign(assignment, updates);
-    return assignment;
+  // 更新作业
+  async function updateAssignment(assignmentId, assignmentUpdates) {
+    return model.updateOne(
+      { _id: assignmentId },
+      { $set: assignmentUpdates }
+    );
+  }
+
+  // 删除作业
+  async function deleteAssignment(assignmentId) {
+    return model.deleteOne({ _id: assignmentId });
   }
 
   return {
     findAssignmentsForCourse,
+    findAssignmentById,
     createAssignment,
-    deleteAssignment,
     updateAssignment,
+    deleteAssignment,
   };
 }

@@ -3,28 +3,47 @@ import { v4 as uuidv4 } from "uuid";
 
 export default function UsersDao() {
   const createUser = (user) => {
-    const newUser = { ...user, _id: uuidv4() };
+    const newUser = { ...user };
+    delete newUser._id;  // 避免用户传入 _id
+    newUser._id = uuidv4();
     return model.create(newUser);
   };
 
   const findAllUsers = () => model.find();
-  const findUserById = (id) => model.findById(id);
+
+  const findUsersByRole = (role) => model.find({ role });
+
+  const findUsersByPartialName = (partialName) => {
+    const regex = new RegExp(partialName, "i");
+    return model.find({
+      $or: [
+        { firstName: { $regex: regex } },
+        { lastName: { $regex: regex } }
+      ]
+    });
+  };
+
+  const findUserById = (userId) => model.findById(userId);
+
+  const updateUser = (userId, user) =>
+    model.updateOne({ _id: userId }, { $set: user });
+
+  const deleteUser = (userId) => model.findByIdAndDelete(userId);
+
   const findUserByUsername = (username) => model.findOne({ username });
+  
   const findUserByCredentials = (username, password) =>
     model.findOne({ username, password });
-
-  const updateUser = (id, user) =>
-    model.updateOne({ _id: id }, { $set: user });
-
-  const deleteUser = (id) => model.deleteOne({ _id: id });
 
   return {
     createUser,
     findAllUsers,
+    findUsersByRole,
+    findUsersByPartialName,
     findUserById,
-    findUserByUsername,
-    findUserByCredentials,
     updateUser,
     deleteUser,
+    findUserByUsername,
+    findUserByCredentials,
   };
 }
