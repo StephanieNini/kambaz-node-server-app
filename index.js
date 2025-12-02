@@ -28,10 +28,9 @@ console.log("==== ACTUAL MONGO URI USED ====");
 console.log(CONNECTION_STRING);
 
 mongoose
-  .connect(CONNECTION_STRING)
+  .connect(CONNECTION_STRING, { dbName: "kambaz" })
   .then(() => console.log("==== MongoDB CONNECTED SUCCESSFULLY ===="))
   .catch((err) => console.log("==== MONGODB CONNECTION ERROR ====", err));
-
 
 // ============================================================
 // 2. Express App Setup
